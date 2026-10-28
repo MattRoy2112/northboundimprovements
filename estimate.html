@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Free Cabinet Painting Estimate — Northbound Improvements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --moss:#4A5A41; --moss-dark:#37442F; --brass:#8A6A3D; --stone:#F2F0E8;
+    --ink:#2A2A24; --line:#E1DDD0; --card:#FFFFFF; --radius:14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --stone:#1E2019; --card:#262920; --ink:#EDEAE1; --line:#3A3D32; }
+  }
+  :root[data-theme="dark"]{ --stone:#1E2019; --card:#262920; --ink:#EDEAE1; --line:#3A3D32; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--stone); color:var(--ink); font-family:'Work Sans',sans-serif; line-height:1.55;
+       padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);}
+  h1,h2{font-family:'Fraunces',serif; font-weight:600; margin:0 0 .4em; color:var(--moss-dark);}
+  .wrap{max-width:640px; margin:0 auto; padding:40px 24px 80px;}
+  a.back{font-size:.9rem; text-decoration:none; color:var(--moss); font-weight:500;}
+  .intro{opacity:.8; margin-bottom:28px;}
+  fieldset{border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin:0 0 20px; background:var(--card);}
+  legend{font-weight:600; font-family:'Fraunces',serif; color:var(--moss-dark); padding:0 8px;}
+  label{display:block; font-size:.88rem; font-weight:500; margin:14px 0 6px;}
+  label:first-of-type{margin-top:0;}
+  input{width:100%; padding:11px 13px; border-radius:8px; border:1px solid var(--line); background:var(--stone); color:var(--ink); font-family:inherit; font-size:.95rem;}
+  .hint{font-size:.78rem; opacity:.65; margin-top:4px;}
+  button.submit{
+    width:100%; padding:15px; border-radius:999px; border:none; background:var(--moss); color:#fff;
+    font-weight:600; font-size:1rem; cursor:pointer; font-family:inherit; margin-top:8px;
+  }
+  .result{display:none; border:1px solid var(--line); border-radius:var(--radius); padding:22px; background:var(--card); margin-top:24px;}
+  .result.show{display:block;}
+  .line{display:flex; justify-content:space-between; padding:6px 0; font-size:.92rem;}
+  .line.total{border-top:1px solid var(--line); margin-top:8px; padding-top:12px; font-weight:600; font-family:'Fraunces',serif; font-size:1.15rem; color:var(--moss-dark);}
+  .disclaimer{font-size:.78rem; opacity:.65; margin-top:16px;}
+  .email-btn{
+    display:inline-block; margin-top:16px; padding:11px 20px; border-radius:999px; background:var(--brass);
+    color:#fff; text-decoration:none; font-size:.9rem; font-weight:600;
+  }
+  .error{color:#A6453A; font-size:.85rem; margin-top:10px; display:none;}
+  .error.show{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; Back to Northbound Improvements</a>
+  <h1 style="margin-top:18px;">Your free estimate</h1>
+  <p class="intro">Enter your kitchen details for an instant, itemized cabinet painting price in Canadian dollars.</p>
+
+  <form id="estForm">
+    <fieldset>
+      <legend>Contact info</legend>
+      <label for="fname">First name *</label>
+      <input id="fname" required>
+      <label for="lname">Last name *</label>
+      <input id="lname" required>
+      <label for="phone">Phone number *</label>
+      <input id="phone" type="tel" required>
+      <label for="email">Email *</label>
+      <input id="email" type="email" required>
+      <label for="address">Address *</label>
+      <input id="address" required>
+    </fieldset>
+
+    <fieldset>
+      <legend>Your kitchen</legend>
+      <label for="doors">Number of cabinet doors</label>
+      <input id="doors" type="number" min="0" step="1" value="0">
+      <label for="frames">Face frames (linear ft)</label>
+      <input id="frames" type="number" min="0" step="0.5" value="0">
+      <label for="drawers">Drawer fronts (linear ft)</label>
+      <input id="drawers" type="number" min="0" step="0.5" value="0">
+      <label for="crown">Crown moulding (linear ft)</label>
+      <input id="crown" type="number" min="0" step="0.5" value="0">
+      <label for="trim">Decorative trim (linear ft)</label>
+      <input id="trim" type="number" min="0" step="0.5" value="0">
+      <label for="knobs">Replace knobs or pulls (quantity)</label>
+      <input id="knobs" type="number" min="0" step="1" value="0">
+    </fieldset>
+
+    <p class="intro">Fill in your contact details and kitchen measurements, then select Get your free estimate now. Your itemized price appears right after you send it.</p>
+    <p class="disclaimer">This estimate is preliminary. The final quote may change after an assessment of your project scope and cabinet condition. Price does not include the cost of materials. Cabinet interiors are not included.</p>
+    <div class="error" id="formError">Please fill in all required contact fields first.</div>
+    <button type="submit" class="submit">Get your free estimate now</button>
+  </form>
+
+  <div class="result" id="result">
+    <h2 style="margin-bottom:14px;">Your itemized estimate</h2>
+    <div class="line"><span id="l-doors-label">Doors</span><span id="l-doors">$0</span></div>
+    <div class="line"><span id="l-frames-label">Face frames + drawer fronts</span><span id="l-frames">$0</span></div>
+    <div class="line"><span id="l-crown-label">Crown moulding</span><span id="l-crown">$0</span></div>
+    <div class="line"><span id="l-trim-label">Decorative trim</span><span id="l-trim">$0</span></div>
+    <div class="line"><span id="l-knobs-label">Knobs / pulls</span><span id="l-knobs">$0</span></div>
+    <div class="line total"><span>Estimated total</span><span id="l-total">$0</span></div>
+    <p class="disclaimer">Prices are in CAD and subject to change after an on-site assessment. This estimate does not include the cost of materials.</p>
+    <p class="disclaimer" id="sendStatus"></p>
+    <a id="emailBtn" class="email-btn" href="#">Email me this estimate</a>
+  </div>
+</div>
+
+<script>
+  var RATE_DOOR = 100, RATE_FT = 30, RATE_KNOB = 10;
+  var form = document.getElementById('estForm');
+  var result = document.getElementById('result');
+  var err = document.getElementById('formError');
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var fname = document.getElementById('fname').value.trim();
+    var lname = document.getElementById('lname').value.trim();
+    var phone = document.getElementById('phone').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var address = document.getElementById('address').value.trim();
+    if(!fname || !lname || !phone || !email || !address){
+      err.classList.add('show');
+      result.classList.remove('show');
+      return;
+    }
+    err.classList.remove('show');
+
+    var doors = parseFloat(document.getElementById('doors').value) || 0;
+    var frames = parseFloat(document.getElementById('frames').value) || 0;
+    var drawers = parseFloat(document.getElementById('drawers').value) || 0;
+    var crown = parseFloat(document.getElementById('crown').value) || 0;
+    var trim = parseFloat(document.getElementById('trim').value) || 0;
+    var knobs = parseFloat(document.getElementById('knobs').value) || 0;
+
+    function fmt(n){ return '$' + n.toLocaleString('en-CA', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+
+    var lines = [
+      { label: doors + ' door' + (doors===1?'':'s') + ' ($100 each)', amount: doors*RATE_DOOR },
+      { label: (frames+drawers) + ' linear ft face frames + drawer fronts ($30/ft)', amount: (frames+drawers)*RATE_FT },
+      { label: crown + ' linear ft crown moulding ($30/ft)', amount: crown*RATE_FT },
+      { label: trim + ' linear ft decorative trim ($30/ft)', amount: trim*RATE_FT },
+      { label: knobs + ' knob/pull' + (knobs===1?'':'s') + ' ($10 each)', amount: knobs*RATE_KNOB }
+    ];
+    var total = lines.reduce(function(s,l){ return s + l.amount; }, 0);
+
+    document.getElementById('l-doors-label').textContent = lines[0].label;
+    document.getElementById('l-doors').textContent = fmt(lines[0].amount);
+    document.getElementById('l-frames-label').textContent = lines[1].label;
+    document.getElementById('l-frames').textContent = fmt(lines[1].amount);
+    document.getElementById('l-crown-label').textContent = lines[2].label;
+    document.getElementById('l-crown').textContent = fmt(lines[2].amount);
+    document.getElementById('l-trim-label').textContent = lines[3].label;
+    document.getElementById('l-trim').textContent = fmt(lines[3].amount);
+    document.getElementById('l-knobs-label').textContent = lines[4].label;
+    document.getElementById('l-knobs').textContent = fmt(lines[4].amount);
+    document.getElementById('l-total').textContent = fmt(total);
+
+    var mailBody = "Hi " + fname + ",%0D%0A%0D%0AHere is your itemized Northbound Improvements estimate:%0D%0A%0D%0A"
+      + lines.map(function(l){ return l.label + ': ' + fmt(l.amount); }).join('%0D%0A')
+      + "%0D%0A%0D%0AESTIMATED TOTAL: " + fmt(total)
+      + "%0D%0A%0D%0AThis estimate is preliminary and subject to change after an on-site assessment. It does not include the cost of materials. Cabinet interiors are not included.%0D%0A%0D%0A"
+      + "— Northbound Improvements";
+    var emailBtn = document.getElementById('emailBtn');
+    emailBtn.href = "mailto:" + encodeURIComponent(email) + "?subject=Your%20Northbound%20Improvements%20Estimate&body=" + mailBody;
+
+    result.classList.add('show');
+    result.scrollIntoView({behavior:'smooth', block:'start'});
+
+    var statusEl = document.getElementById('sendStatus');
+    var submitBtn = form.querySelector('button[type=submit]');
+    statusEl.textContent = 'Sending your estimate to ' + email + '…';
+    submitBtn.disabled = true;
+
+    fetch('/api/send-estimate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fname: fname, lname: lname, email: email, phone: phone, address: address, lines: lines, total: total })
+    }).then(function(r){
+      if(!r.ok) throw new Error('send failed');
+      statusEl.textContent = 'Sent! Check your inbox for a copy of this estimate.';
+    }).catch(function(){
+      statusEl.textContent = "Couldn't auto-send from here — use the button below to email yourself this estimate instead.";
+    }).finally(function(){
+      submitBtn.disabled = false;
+    });
+  });
+</script>
+</body>
+</html>

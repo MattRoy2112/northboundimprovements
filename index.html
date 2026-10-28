@@ -42,10 +42,10 @@
   .logo{font-family:'Fraunces',serif; font-weight:600; font-size:1.25rem; letter-spacing:.01em; text-decoration:none; color:#808B7A;}
   .navlinks{display:flex; gap:28px; align-items:center; flex-wrap:wrap;}
   .navlinks a{text-decoration:none; font-size:.95rem; font-weight:500; color:var(--ink);}
+  .navlinks a.phone-link{font-weight:600; color:var(--moss-dark); text-decoration:none;}
   .navlinks a.cta{
     background:var(--moss); color:#fff; padding:10px 18px; border-radius:999px;
   }
-  @media (max-width:640px){ .navlinks{gap:14px; font-size:.85rem;} .navlinks a.cta{padding:8px 14px;} }
 
   .hero{position:relative; overflow:hidden;}
   .hero-bg{
@@ -116,6 +116,7 @@
   footer{padding:40px 24px calc(40px + env(safe-area-inset-bottom,0px)); text-align:center; border-top:1px solid var(--line);}
   footer .logo{display:block; margin-bottom:8px;}
   footer .f-email{font-size:.92rem; color:var(--muted); margin-bottom:14px; display:block;}
+  @media (max-width:640px){ .navlinks{gap:14px; font-size:.85rem;} .navlinks a.cta{padding:8px 14px;} }
   footer .f-copy{font-size:.82rem; color:var(--muted); margin-top:14px;}
   .social-row{display:flex; justify-content:center; gap:14px;}
   .social-row a{
@@ -143,7 +144,7 @@
   <nav class="nav">
     <a href="#top" class="logo">Northbound Improvements</a>
     <div class="navlinks">
-      <a href="https://claude.ai/artifact/6R6fNGygTiwaC9WstEwKjS" class="cta" target="_blank" rel="noopener">Get your free estimate here</a>
+      <a href="/estimate" class="cta">Get your free estimate here</a>
     </div>
   </nav>
 </header>
@@ -223,6 +224,7 @@
 <footer>
   <span class="logo">Northbound Improvements</span>
   <a class="f-email" href="mailto:info@northboundimprovements.com">info@northboundimprovements.com</a>
+  <a class="f-email" href="tel:+16475444057">(647) 544-4057</a>
   <div class="social-row" id="social">
     <a href="https://www.instagram.com/northboundimprovements/" target="_blank" rel="noopener" aria-label="Northbound Improvements on Instagram" class="ig">
       <svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.24 2.22.4.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.35 1.05.4 2.22.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.24 1.8-.4 2.22-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.05.35-2.22.4-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.24-2.22-.4-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.35-1.05-.4-2.22C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.24-1.8.4-2.22.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.05-.35 2.22-.4C8.42 2.21 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.5.01-4.73.07-.97.04-1.5.21-1.85.34-.46.18-.79.4-1.14.75-.35.35-.57.68-.75 1.14-.13.35-.3.88-.34 1.85-.06 1.23-.07 1.58-.07 4.73s.01 3.5.07 4.73c.04.97.21 1.5.34 1.85.18.46.4.79.75 1.14.35.35.68.57 1.14.75.35.13.88.3 1.85.34 1.23.06 1.58.07 4.73.07s3.5-.01 4.73-.07c.97-.04 1.5-.21 1.85-.34.46-.18.79-.4 1.14-.75.35-.35.57-.68.75-1.14.13-.35.3-.88.34-1.85.06-1.23.07-1.58.07-4.73s-.01-3.5-.07-4.73c-.04-.97-.21-1.5-.34-1.85-.18-.46-.4-.79-.75-1.14-.35-.35-.68-.57-1.14-.75-.35-.13-.88-.3-1.85-.34C15.5 4.01 15.15 4 12 4zm0 3.3a4.7 4.7 0 110 9.4 4.7 4.7 0 010-9.4zm0 1.8a2.9 2.9 0 100 5.8 2.9 2.9 0 000-5.8zm5.9-2a1.1 1.1 0 11-2.2 0 1.1 1.1 0 012.2 0z"/></svg>
