@@ -251,17 +251,27 @@
     afterLayer.style.clipPath = 'inset(0 0 0 ' + pct + '%)';
     handle.style.left = pct + '%';
   }
-  swap.addEventListener('pointerdown', function(e){
+  swap.addEventListener('mousedown', function(e){
     dragging = true;
-    swap.setPointerCapture(e.pointerId);
     setPercent(e.clientX);
   });
-  swap.addEventListener('pointermove', function(e){
+  window.addEventListener('mousemove', function(e){
     if(!dragging) return;
     setPercent(e.clientX);
   });
-  swap.addEventListener('pointerup', function(){ dragging = false; });
-  swap.addEventListener('pointercancel', function(){ dragging = false; });
+  window.addEventListener('mouseup', function(){ dragging = false; });
+
+  swap.addEventListener('touchstart', function(e){
+    dragging = true;
+    setPercent(e.touches[0].clientX);
+  }, {passive:true});
+  swap.addEventListener('touchmove', function(e){
+    if(!dragging) return;
+    e.preventDefault();
+    setPercent(e.touches[0].clientX);
+  }, {passive:false});
+  swap.addEventListener('touchend', function(){ dragging = false; });
+  swap.addEventListener('touchcancel', function(){ dragging = false; });
   var initRect = swap.getBoundingClientRect();
   setPercent(initRect.left + initRect.width / 2);
 
