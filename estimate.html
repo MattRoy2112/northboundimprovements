@@ -45,6 +45,13 @@
   }
   .error{color:#A6453A; font-size:.85rem; margin-top:10px; display:none;}
   .error.show{display:block;}
+
+  .book{margin-top:22px; padding:18px; border:1px solid #d9d4c7; border-radius:14px; background:#faf8f2;}
+  .book h3{margin:0 0 6px; font-size:1.05rem;}
+  .book p{margin:0 0 12px; font-size:.92rem;}
+  .book select{width:100%; padding:12px; border:1px solid #cfc9ba; border-radius:10px; font-size:.95rem; background:#fff;}
+  .book input[type=date]{width:100%; padding:12px; border:1px solid #cfc9ba; border-radius:10px; font-size:.95rem; background:#fff;}
+  .email-link{display:inline-block; margin-top:14px; font-size:.88rem; color:#4A5A41; text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -99,8 +106,27 @@
     <div class="line"><span id="l-knobs-label">Knobs / pulls</span><span id="l-knobs">$0</span></div>
     <div class="line total"><span>Estimated total</span><span id="l-total">$0</span></div>
     <p class="disclaimer">Prices are in CAD and subject to change after an on-site assessment. This estimate does not include the cost of materials.</p>
+
+    <div class="book" id="bookBox">
+      <h3>Ready for an exact quote?</h3>
+      <p>Book a quick call and I'll confirm your project details and give you a final price. Texting me a few photos of your kitchen beforehand helps. Depending on the project, I may quote from photos or offer a short visit.</p>
+      <label for="callDate">Preferred day *</label>
+      <input id="callDate" type="date">
+      <label for="callTime">Preferred time *</label>
+      <select id="callTime">
+        <option value="">Choose a time</option>
+        <option>Morning (8am to 12pm)</option>
+        <option>Afternoon (12pm to 4pm)</option>
+        <option>Evening (4pm to 8pm)</option>
+      </select>
+      <div class="error" id="bookError">Please choose a day and a time.</div>
+      <button type="button" class="submit" id="bookBtn">Request my call</button>
+      <p class="disclaimer">Your final quote may differ from this estimate depending on the condition and scope of your cabinets.</p>
+      <p class="disclaimer" id="bookStatus"></p>
+    </div>
+
     <p class="disclaimer" id="sendStatus"></p>
-    <a id="emailBtn" class="email-btn" href="#">Email me this estimate</a>
+    <a id="emailBtn" class="email-link" href="#">Email me a copy of this estimate</a>
   </div>
 </div>
 
@@ -165,22 +191,45 @@
     result.classList.add('show');
     result.scrollIntoView({behavior:'smooth', block:'start'});
 
-    var statusEl = document.getElementById('sendStatus');
-    var submitBtn = form.querySelector('button[type=submit]');
-    statusEl.textContent = 'Sending your estimate to ' + email + '…';
-    submitBtn.disabled = true;
+    // Save the estimate request to the Google Sheet (free), then reveal the booking step
+    window.__lead = { fname: fname, lname: lname, email: email, phone: phone, address: address,
+                      total: total, summary: lines.map(function(l){ return l.label + ': ' + fmt(l.amount); }).join(' | ') };
+    sendToSheet({ type: 'estimate', lead: window.__lead });
+    document.getElementById('sendStatus').textContent = '';
+  });
 
-    fetch('/api/send-estimate', {
+  // Paste your Google Apps Script web app URL here (see setup steps)
+  var SHEET_URL = 'https://script.google.com/macros/s/AKfycbzrunV6kntxxbJKI4tDTz41Jf3BJJ-T82BjR8ePK71IoYRhnYT_BnlCzhB0VL5q3ChF/exec';
+
+  function sendToSheet(payload){
+    if(!SHEET_URL || SHEET_URL.indexOf('PASTE_') === 0) return Promise.resolve(false);
+    return fetch(SHEET_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fname: fname, lname: lname, email: email, phone: phone, address: address, lines: lines, total: total })
-    }).then(function(r){
-      if(!r.ok) throw new Error('send failed');
-      statusEl.textContent = 'Sent! Check your inbox for a copy of this estimate.';
-    }).catch(function(){
-      statusEl.textContent = "Couldn't auto-send from here — use the button below to email yourself this estimate instead.";
-    }).finally(function(){
-      submitBtn.disabled = false;
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(function(){ return true; }).catch(function(){ return false; });
+  }
+
+  // Block past dates in the date picker
+  (function(){
+    var d = new Date(); d.setDate(d.getDate() + 1);
+    var iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    document.getElementById('callDate').setAttribute('min', iso);
+  })();
+
+  document.getElementById('bookBtn').addEventListener('click', function(){
+    var date = document.getElementById('callDate').value;
+    var time = document.getElementById('callTime').value;
+    var bErr = document.getElementById('bookError');
+    var bStatus = document.getElementById('bookStatus');
+    if(!date || !time){ bErr.classList.add('show'); return; }
+    bErr.classList.remove('show');
+    var btn = this; btn.disabled = true;
+    bStatus.textContent = 'Sending your request...';
+    sendToSheet({ type: 'booking', lead: window.__lead || {}, callDate: date, callTime: time }).then(function(){
+      bStatus.textContent = "Got it! I'll reach out to confirm your call for " + date + ", " + time.toLowerCase() + ".";
+      btn.style.display = 'none';
     });
   });
 </script>
