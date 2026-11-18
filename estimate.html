@@ -52,7 +52,11 @@
   .book select{width:100%; padding:12px; border:1px solid #cfc9ba; border-radius:10px; font-size:.95rem; background:#fff;}
   .book input[type=date]{width:100%; padding:12px; border:1px solid #cfc9ba; border-radius:10px; font-size:.95rem; background:#fff;}
   .email-link{display:inline-block; margin-top:14px; font-size:.88rem; color:#4A5A41; text-decoration:underline;}
+
+  .pdf-btn{display:inline-block; margin-top:14px; padding:12px 20px; border-radius:999px; border:1px solid #4A5A41; background:#fff; color:#4A5A41; font-weight:600; font-size:.92rem; cursor:pointer;}
+  .pdf-btn:hover{background:#4A5A41; color:#fff;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -92,41 +96,35 @@
     </fieldset>
 
     <p class="intro">Fill in your contact details and kitchen measurements, then select Get your free estimate now. Your itemized price appears right after you send it.</p>
-    <p class="disclaimer">This estimate is preliminary. The final quote may change after an assessment of your project scope and cabinet condition. Price does not include the cost of materials. Cabinet interiors are not included.</p>
+    <p class="disclaimer">This estimate is preliminary. The final quote may change after an assessment of your project scope and cabinet condition. Price does not include the cost of materials. Cabinet interiors are not offered as part of this service.</p>
     <div class="error" id="formError">Please fill in all required contact fields first.</div>
     <button type="submit" class="submit">Get your free estimate now</button>
   </form>
 
   <div class="result" id="result">
-    <h2 style="margin-bottom:14px;">Your itemized estimate</h2>
-    <div class="line"><span id="l-doors-label">Doors</span><span id="l-doors">$0</span></div>
-    <div class="line"><span id="l-frames-label">Face frames + drawer fronts</span><span id="l-frames">$0</span></div>
-    <div class="line"><span id="l-crown-label">Crown moulding</span><span id="l-crown">$0</span></div>
-    <div class="line"><span id="l-trim-label">Decorative trim</span><span id="l-trim">$0</span></div>
-    <div class="line"><span id="l-knobs-label">Knobs / pulls</span><span id="l-knobs">$0</span></div>
+    <h2 style="margin-bottom:14px;">Your estimate</h2>
+    <p style="margin:0 0 8px; font-weight:600; color:#4A5A41;">Scope of work</p>
+    <ul id="scopeList" style="margin:0 0 18px; padding-left:20px; line-height:1.7;"></ul>
     <div class="line total"><span>Estimated total</span><span id="l-total">$0</span></div>
     <p class="disclaimer">Prices are in CAD and subject to change after an on-site assessment. This estimate does not include the cost of materials.</p>
 
     <div class="book" id="bookBox">
       <h3>Ready for an exact quote?</h3>
-      <p>Book a quick call and I'll confirm your project details and give you a final price. Texting me a few photos of your kitchen beforehand helps. Depending on the project, I may quote from photos or offer a short visit.</p>
-      <label for="callDate">Preferred day *</label>
-      <input id="callDate" type="date">
-      <label for="callTime">Preferred time *</label>
-      <select id="callTime">
-        <option value="">Choose a time</option>
-        <option>Morning (8am to 12pm)</option>
-        <option>Afternoon (12pm to 4pm)</option>
-        <option>Evening (4pm to 8pm)</option>
-      </select>
-      <div class="error" id="bookError">Please choose a day and a time.</div>
-      <button type="button" class="submit" id="bookBtn">Request my call</button>
+      <p>Book a quick 15-minute call and I'll confirm your project details and give you a final price. Texting me a few photos of your kitchen beforehand helps. Depending on the project, I may quote from photos or offer a short visit.</p>
+      <a class="submit" style="display:block; text-align:center; text-decoration:none;" href="https://calendar.app.google/hWRJGZt6GHuw47Vy8" target="_blank" rel="noopener">Book your free 15-minute call</a>
       <p class="disclaimer">Your final quote may differ from this estimate depending on the condition and scope of your cabinets.</p>
-      <p class="disclaimer" id="bookStatus"></p>
     </div>
 
     <p class="disclaimer" id="sendStatus"></p>
-    <a id="emailBtn" class="email-link" href="#">Email me a copy of this estimate</a>
+    <button type="button" class="pdf-btn" id="pdfBtn">Download my estimate (PDF)</button>
+  </div>
+</div>
+
+<div class="container" id="book" style="margin-top:28px;">
+  <div class="book" id="directBookBox">
+    <h3>Already have your estimate?</h3>
+    <p>Skip re-entering your measurements — just book a free 15-minute call and I'll follow up to firm up your quote.</p>
+    <a class="submit" style="display:block; text-align:center; text-decoration:none;" href="https://calendar.app.google/hWRJGZt6GHuw47Vy8" target="_blank" rel="noopener">Book your free 15-minute call</a>
   </div>
 </div>
 
@@ -159,41 +157,34 @@
 
     function fmt(n){ return '$' + n.toLocaleString('en-CA', {minimumFractionDigits:0, maximumFractionDigits:0}); }
 
+    // Internal pricing math (kept out of what's shown to the customer)
     var lines = [
-      { label: doors + ' door' + (doors===1?'':'s') + ' ($100 each)', amount: doors*RATE_DOOR },
-      { label: (frames+drawers) + ' linear ft face frames + drawer fronts ($30/ft)', amount: (frames+drawers)*RATE_FT },
-      { label: crown + ' linear ft crown moulding ($30/ft)', amount: crown*RATE_FT },
-      { label: trim + ' linear ft decorative trim ($30/ft)', amount: trim*RATE_FT },
-      { label: knobs + ' knob/pull' + (knobs===1?'':'s') + ' ($10 each)', amount: knobs*RATE_KNOB }
+      { label: doors + ' door' + (doors===1?'':'s') + ' ($100 each)', amount: doors*RATE_DOOR, scope: doors + ' cabinet door' + (doors===1?'':'s'), qty: doors },
+      { label: (frames+drawers) + ' linear ft face frames + drawer fronts ($30/ft)', amount: (frames+drawers)*RATE_FT, scope: (frames+drawers) + ' linear ft of face frames and drawer fronts', qty: frames+drawers },
+      { label: crown + ' linear ft crown moulding ($30/ft)', amount: crown*RATE_FT, scope: crown + ' linear ft of crown moulding', qty: crown },
+      { label: trim + ' linear ft decorative trim ($30/ft)', amount: trim*RATE_FT, scope: trim + ' linear ft of decorative trim', qty: trim },
+      { label: knobs + ' knob/pull' + (knobs===1?'':'s') + ' ($10 each)', amount: knobs*RATE_KNOB, scope: knobs + ' knob' + (knobs===1?'':'s') + '/pull' + (knobs===1?'':'s'), qty: knobs }
     ];
     var total = lines.reduce(function(s,l){ return s + l.amount; }, 0);
 
-    document.getElementById('l-doors-label').textContent = lines[0].label;
-    document.getElementById('l-doors').textContent = fmt(lines[0].amount);
-    document.getElementById('l-frames-label').textContent = lines[1].label;
-    document.getElementById('l-frames').textContent = fmt(lines[1].amount);
-    document.getElementById('l-crown-label').textContent = lines[2].label;
-    document.getElementById('l-crown').textContent = fmt(lines[2].amount);
-    document.getElementById('l-trim-label').textContent = lines[3].label;
-    document.getElementById('l-trim').textContent = fmt(lines[3].amount);
-    document.getElementById('l-knobs-label').textContent = lines[4].label;
-    document.getElementById('l-knobs').textContent = fmt(lines[4].amount);
+    // Customer-facing: scope only, no per-item pricing
+    var scopeList = document.getElementById('scopeList');
+    scopeList.innerHTML = '';
+    lines.filter(function(l){ return l.qty > 0; }).forEach(function(l){
+      var li = document.createElement('li');
+      li.textContent = l.scope;
+      scopeList.appendChild(li);
+    });
     document.getElementById('l-total').textContent = fmt(total);
-
-    var mailBody = "Hi " + fname + ",%0D%0A%0D%0AHere is your itemized Northbound Improvements estimate:%0D%0A%0D%0A"
-      + lines.map(function(l){ return l.label + ': ' + fmt(l.amount); }).join('%0D%0A')
-      + "%0D%0A%0D%0AESTIMATED TOTAL: " + fmt(total)
-      + "%0D%0A%0D%0AThis estimate is preliminary and subject to change after an on-site assessment. It does not include the cost of materials. Cabinet interiors are not included.%0D%0A%0D%0A"
-      + "— Northbound Improvements";
-    var emailBtn = document.getElementById('emailBtn');
-    emailBtn.href = "mailto:" + encodeURIComponent(email) + "?subject=Your%20Northbound%20Improvements%20Estimate&body=" + mailBody;
 
     result.classList.add('show');
     result.scrollIntoView({behavior:'smooth', block:'start'});
 
-    // Save the estimate request to the Google Sheet (free), then reveal the booking step
+    // Save the estimate request to the Google Sheet (free, full breakdown kept for your own records), then reveal the booking step
     window.__lead = { fname: fname, lname: lname, email: email, phone: phone, address: address,
-                      total: total, summary: lines.map(function(l){ return l.label + ': ' + fmt(l.amount); }).join(' | ') };
+                      total: total, totalText: fmt(total),
+                      scopeRows: lines.filter(function(l){ return l.qty > 0; }).map(function(l){ return l.scope; }),
+                      summary: lines.map(function(l){ return l.label + ': ' + fmt(l.amount); }).join(' | ') };
     sendToSheet({ type: 'estimate', lead: window.__lead });
     document.getElementById('sendStatus').textContent = '';
   });
@@ -211,26 +202,52 @@
     }).then(function(){ return true; }).catch(function(){ return false; });
   }
 
-  // Block past dates in the date picker
-  (function(){
-    var d = new Date(); d.setDate(d.getDate() + 1);
-    var iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    document.getElementById('callDate').setAttribute('min', iso);
-  })();
+  document.getElementById('pdfBtn').addEventListener('click', function(){
+    var L = window.__lead; if(!L || !window.jspdf) return;
+    var doc = new window.jspdf.jsPDF({unit:'pt', format:'letter'});
+    var x = 56, y = 64;
+    doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(74,90,65);
+    doc.text('Northbound Improvements', x, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(110,110,110);
+    y += 18; doc.text('Cabinet painting estimate  |  info@northboundimprovements.com  |  northboundimprovements.com', x, y);
+    var preparedDate = new Date();
+    var expiryDate = new Date(); expiryDate.setDate(expiryDate.getDate() + 30);
+    y += 14; doc.text('Prepared ' + preparedDate.toLocaleDateString('en-CA') + '   |   Valid until ' + expiryDate.toLocaleDateString('en-CA'), x, y);
 
-  document.getElementById('bookBtn').addEventListener('click', function(){
-    var date = document.getElementById('callDate').value;
-    var time = document.getElementById('callTime').value;
-    var bErr = document.getElementById('bookError');
-    var bStatus = document.getElementById('bookStatus');
-    if(!date || !time){ bErr.classList.add('show'); return; }
-    bErr.classList.remove('show');
-    var btn = this; btn.disabled = true;
-    bStatus.textContent = 'Sending your request...';
-    sendToSheet({ type: 'booking', lead: window.__lead || {}, callDate: date, callTime: time }).then(function(){
-      bStatus.textContent = "Got it! I'll reach out to confirm your call for " + date + ", " + time.toLowerCase() + ".";
-      btn.style.display = 'none';
+    y += 34; doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(40,40,40);
+    doc.text('Prepared for', x, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(11);
+    y += 16; doc.text(L.fname + ' ' + L.lname, x, y);
+    y += 15; doc.text(L.address, x, y);
+    y += 15; doc.text(L.phone + '  |  ' + L.email, x, y);
+
+    y += 34; doc.setFont('helvetica','bold'); doc.setFontSize(12);
+    doc.text('Scope of work', x, y);
+    doc.setDrawColor(200,200,200); y += 8; doc.line(x, y, 556, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(11);
+    (L.scopeRows || []).forEach(function(s){
+      y += 20; doc.text('\u2022  ' + s, x, y);
     });
+    y += 14; doc.line(x, y, 556, y);
+    y += 30; doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(40,40,40);
+    doc.text('Estimated total', x, y); doc.text(L.totalText, 556, y, {align:'right'});
+
+    var pageCenter = doc.internal.pageSize.getWidth() / 2;
+    y += 50; doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(74,90,65);
+    doc.text('Thanks for considering Northbound Improvements for your kitchen!', pageCenter, y, {align:'center'});
+    y += 20; doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(40,40,40);
+    doc.textWithLink('Ready for an exact quote? Book your free 15-minute call here,', pageCenter, y, {align:'center', url:'https://calendar.app.google/hWRJGZt6GHuw47Vy8'});
+    y += 16; doc.text('or reply to info@northboundimprovements.com with any questions.', pageCenter, y, {align:'center'});
+
+    // Disclaimer pinned to the bottom of the page, regardless of how much content is above it
+    var pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(110,110,110);
+    var note = 'This estimate is preliminary and valid for 30 days from the prepared date above. The final quote may change after an assessment of your project scope and cabinet condition. Prices are in CAD and do not include the cost of materials. Cabinet interiors are not offered as part of this service.';
+    var noteLines = doc.splitTextToSize(note, 500);
+    var noteY = pageHeight - 50 - (noteLines.length - 1) * 11;
+    doc.text(noteLines, x, noteY);
+
+    doc.save('Northbound-Improvements-Estimate.pdf');
   });
 </script>
 </body>

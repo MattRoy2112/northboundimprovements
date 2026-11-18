@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Book a Call — Northbound Improvements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --moss:#4A5A41; --moss-dark:#37442F; --brass:#8A6A3D; --stone:#F2F0E8;
+    --ink:#2A2A24; --line:#E1DDD0; --card:#FFFFFF; --radius:14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --stone:#1E2019; --card:#262920; --ink:#EDEAE1; --line:#3A3D32; }
+  }
+  :root[data-theme="dark"]{ --stone:#1E2019; --card:#262920; --ink:#EDEAE1; --line:#3A3D32; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--stone); color:var(--ink); font-family:'Work Sans',sans-serif; line-height:1.55;
+       padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);}
+  h1{font-family:'Fraunces',serif; font-weight:600; margin:0 0 .3em; color:var(--moss-dark); font-size:1.7rem;}
+  .wrap{max-width:560px; margin:0 auto; padding:48px 24px 80px; text-align:center;}
+  a.back{font-size:.9rem; text-decoration:none; color:var(--moss); font-weight:500; display:block; margin-bottom:24px; text-align:left;}
+  .intro{opacity:.82; margin-bottom:30px; font-size:1.02rem;}
+  .card{border:1px solid var(--line); border-radius:var(--radius); padding:28px 24px; background:var(--card);}
+  .cta{
+    display:block; width:100%; padding:16px; border-radius:999px; border:none; background:var(--moss); color:#fff;
+    font-weight:600; font-size:1.05rem; cursor:pointer; font-family:inherit; text-decoration:none; margin-top:6px;
+  }
+  .note{font-size:.82rem; opacity:.65; margin-top:18px;}
+  .perk-list{text-align:left; margin:0 0 22px; padding-left:20px; font-size:.95rem; line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; Back to Northbound Improvements</a>
+  <h1>Book a free 15-minute call</h1>
+  <p class="intro">Talk through your kitchen cabinets and get a clear next step — no obligation, no pressure.</p>
+
+  <div class="card">
+    <ul class="perk-list">
+      <li>Confirm the scope of your project</li>
+      <li>Get your questions answered</li>
+      <li>Find out if photos or a short visit is the best next step for an exact quote</li>
+    </ul>
+    <a class="cta" href="https://calendar.app.google/hWRJGZt6GHuw47Vy8" target="_blank" rel="noopener">Book your call</a>
+    <p class="note">Takes about 30 seconds to pick a time that works for you.</p>
+  </div>
+</div>
+</body>
+</html>
