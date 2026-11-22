@@ -11,6 +11,7 @@
   :root{
     --moss:#4A5A41; --moss-dark:#37442F; --brass:#8A6A3D; --stone:#F2F0E8;
     --ink:#2A2A24; --line:#E1DDD0; --card:#FFFFFF; --radius:14px;
+    --amber:#CF9B5C; --amber-dark:#8A5A24;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
@@ -20,7 +21,7 @@
   *{box-sizing:border-box;}
   body{margin:0; background:var(--stone); color:var(--ink); font-family:'Work Sans',sans-serif; line-height:1.55;
        padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);}
-  h1,h2{font-family:'Fraunces',serif; font-weight:600; margin:0 0 .4em; color:var(--moss-dark);}
+  h1,h2,h3{font-family:'Fraunces',serif; font-weight:600; margin:0 0 .4em; color:var(--moss-dark);}
   .wrap{max-width:640px; margin:0 auto; padding:40px 24px 80px;}
   a.back{font-size:.9rem; text-decoration:none; color:var(--moss); font-weight:500;}
   .intro{opacity:.8; margin-bottom:28px;}
@@ -34,29 +35,25 @@
     width:100%; padding:15px; border-radius:999px; border:none; background:var(--moss); color:#fff;
     font-weight:600; font-size:1rem; cursor:pointer; font-family:inherit; margin-top:8px;
   }
-  .result{display:none; border:1px solid var(--line); border-radius:var(--radius); padding:22px; background:var(--card); margin-top:24px;}
-  .result.show{display:block;}
-  .line{display:flex; justify-content:space-between; padding:6px 0; font-size:.92rem;}
-  .line.total{border-top:1px solid var(--line); margin-top:8px; padding-top:12px; font-weight:600; font-family:'Fraunces',serif; font-size:1.15rem; color:var(--moss-dark);}
   .disclaimer{font-size:.78rem; opacity:.65; margin-top:16px;}
-  .email-btn{
-    display:inline-block; margin-top:16px; padding:11px 20px; border-radius:999px; background:var(--brass);
-    color:#fff; text-decoration:none; font-size:.9rem; font-weight:600;
-  }
   .error{color:#A6453A; font-size:.85rem; margin-top:10px; display:none;}
   .error.show{display:block;}
 
-  .book{margin-top:22px; padding:18px; border:1px solid #d9d4c7; border-radius:14px; background:#faf8f2;}
-  .book h3{margin:0 0 6px; font-size:1.05rem;}
-  .book p{margin:0 0 12px; font-size:.92rem;}
-  .book select{width:100%; padding:12px; border:1px solid #cfc9ba; border-radius:10px; font-size:.95rem; background:#fff;}
-  .book input[type=date]{width:100%; padding:12px; border:1px solid #cfc9ba; border-radius:10px; font-size:.95rem; background:#fff;}
-  .email-link{display:inline-block; margin-top:14px; font-size:.88rem; color:#4A5A41; text-decoration:underline;}
+  /* Standalone "already have your estimate" box — fixed, explicit colors so it never
+     inherits the page's dark-mode text color against its own light card background */
+  .book{margin-top:28px; padding:22px; border:1px solid #d9d4c7; border-radius:16px; background:#faf8f2;}
+  .book h3{color:#2A2A24; margin:0 0 6px; font-size:1.1rem;}
+  .book p{color:#4A463C; margin:0 0 14px; font-size:.93rem;}
 
-  .pdf-btn{display:inline-block; margin-top:14px; padding:12px 20px; border-radius:999px; border:1px solid #4A5A41; background:#fff; color:#4A5A41; font-weight:600; font-size:.92rem; cursor:pointer;}
-  .pdf-btn:hover{background:#4A5A41; color:#fff;}
+  /* High-contrast CTA — amber pop against the moss/stone palette, works in any color scheme */
+  .cta-pop{
+    display:block; width:100%; text-align:center; padding:16px; border-radius:999px;
+    background:var(--amber); color:#2A2008; text-decoration:none;
+    font-weight:700; font-size:1.02rem; font-family:'Work Sans',sans-serif;
+    box-shadow:0 6px 18px -6px rgba(138,90,36,.55);
+  }
+  .cta-pop:hover{background:#DBAE74;}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -95,44 +92,35 @@
       <input id="knobs" type="number" min="0" step="1" value="0">
     </fieldset>
 
-    <p class="intro">Fill in your contact details and kitchen measurements, then select Get your free estimate now. Your itemized price appears right after you send it.</p>
+    <p class="intro">Fill in your contact details and kitchen measurements, then select Get your free estimate now. Your itemized price appears on the next page.</p>
     <p class="disclaimer">This estimate is preliminary. The final quote may change after an assessment of your project scope and cabinet condition. Price does not include the cost of materials. Cabinet interiors are not offered as part of this service.</p>
     <div class="error" id="formError">Please fill in all required contact fields first.</div>
     <button type="submit" class="submit">Get your free estimate now</button>
   </form>
 
-  <div class="result" id="result">
-    <h2 style="margin-bottom:14px;">Your estimate</h2>
-    <p style="margin:0 0 8px; font-weight:600; color:#4A5A41;">Scope of work</p>
-    <ul id="scopeList" style="margin:0 0 18px; padding-left:20px; line-height:1.7;"></ul>
-    <div class="line total"><span>Estimated total</span><span id="l-total">$0</span></div>
-    <p class="disclaimer">Prices are in CAD and subject to change after an on-site assessment. This estimate does not include the cost of materials.</p>
-
-    <div class="book" id="bookBox">
-      <h3>Ready for an exact quote?</h3>
-      <p>Book a quick 15-minute call and I'll confirm your project details and give you a final price. Texting me a few photos of your kitchen beforehand helps. Depending on the project, I may quote from photos or offer a short visit.</p>
-      <a class="submit" style="display:block; text-align:center; text-decoration:none;" href="https://calendar.app.google/hWRJGZt6GHuw47Vy8" target="_blank" rel="noopener">Book your free 15-minute call</a>
-      <p class="disclaimer">Your final quote may differ from this estimate depending on the condition and scope of your cabinets.</p>
-    </div>
-
-    <p class="disclaimer" id="sendStatus"></p>
-    <button type="button" class="pdf-btn" id="pdfBtn">Download my estimate (PDF)</button>
-  </div>
-</div>
-
-<div class="container" id="book" style="margin-top:28px;">
   <div class="book" id="directBookBox">
     <h3>Already have your estimate?</h3>
     <p>Skip re-entering your measurements — just book a free 15-minute call and I'll follow up to firm up your quote.</p>
-    <a class="submit" style="display:block; text-align:center; text-decoration:none;" href="https://calendar.app.google/hWRJGZt6GHuw47Vy8" target="_blank" rel="noopener">Book your free 15-minute call</a>
+    <a class="cta-pop" href="https://calendar.app.google/hWRJGZt6GHuw47Vy8" target="_blank" rel="noopener">Book your free 15-minute call</a>
   </div>
 </div>
 
 <script>
   var RATE_DOOR = 100, RATE_FT = 30, RATE_KNOB = 10;
   var form = document.getElementById('estForm');
-  var result = document.getElementById('result');
   var err = document.getElementById('formError');
+
+  var SHEET_URL = 'https://script.google.com/macros/s/AKfycbzrunV6kntxxbJKI4tDTz41Jf3BJJ-T82BjR8ePK71IoYRhnYT_BnlCzhB0VL5q3ChF/exec';
+
+  function sendToSheet(payload){
+    if(!SHEET_URL || SHEET_URL.indexOf('PASTE_') === 0) return Promise.resolve(false);
+    return fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(function(){ return true; }).catch(function(){ return false; });
+  }
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
@@ -143,7 +131,6 @@
     var address = document.getElementById('address').value.trim();
     if(!fname || !lname || !phone || !email || !address){
       err.classList.add('show');
-      result.classList.remove('show');
       return;
     }
     err.classList.remove('show');
@@ -167,87 +154,17 @@
     ];
     var total = lines.reduce(function(s,l){ return s + l.amount; }, 0);
 
-    // Customer-facing: scope only, no per-item pricing
-    var scopeList = document.getElementById('scopeList');
-    scopeList.innerHTML = '';
-    lines.filter(function(l){ return l.qty > 0; }).forEach(function(l){
-      var li = document.createElement('li');
-      li.textContent = l.scope;
-      scopeList.appendChild(li);
-    });
-    document.getElementById('l-total').textContent = fmt(total);
+    var lead = { fname: fname, lname: lname, email: email, phone: phone, address: address,
+                 total: total, totalText: fmt(total),
+                 scopeRows: lines.filter(function(l){ return l.qty > 0; }).map(function(l){ return l.scope; }),
+                 summary: lines.map(function(l){ return l.label + ': ' + fmt(l.amount); }).join(' | ') };
 
-    result.classList.add('show');
-    result.scrollIntoView({behavior:'smooth', block:'start'});
+    // Full breakdown (with dollar amounts) saved to your private Sheet
+    sendToSheet({ type: 'estimate', lead: lead });
 
-    // Save the estimate request to the Google Sheet (free, full breakdown kept for your own records), then reveal the booking step
-    window.__lead = { fname: fname, lname: lname, email: email, phone: phone, address: address,
-                      total: total, totalText: fmt(total),
-                      scopeRows: lines.filter(function(l){ return l.qty > 0; }).map(function(l){ return l.scope; }),
-                      summary: lines.map(function(l){ return l.label + ': ' + fmt(l.amount); }).join(' | ') };
-    sendToSheet({ type: 'estimate', lead: window.__lead });
-    document.getElementById('sendStatus').textContent = '';
-  });
-
-  // Paste your Google Apps Script web app URL here (see setup steps)
-  var SHEET_URL = 'https://script.google.com/macros/s/AKfycbzrunV6kntxxbJKI4tDTz41Jf3BJJ-T82BjR8ePK71IoYRhnYT_BnlCzhB0VL5q3ChF/exec';
-
-  function sendToSheet(payload){
-    if(!SHEET_URL || SHEET_URL.indexOf('PASTE_') === 0) return Promise.resolve(false);
-    return fetch(SHEET_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    }).then(function(){ return true; }).catch(function(){ return false; });
-  }
-
-  document.getElementById('pdfBtn').addEventListener('click', function(){
-    var L = window.__lead; if(!L || !window.jspdf) return;
-    var doc = new window.jspdf.jsPDF({unit:'pt', format:'letter'});
-    var x = 56, y = 64;
-    doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(74,90,65);
-    doc.text('Northbound Improvements', x, y);
-    doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(110,110,110);
-    y += 18; doc.text('Cabinet painting estimate  |  info@northboundimprovements.com  |  northboundimprovements.com', x, y);
-    var preparedDate = new Date();
-    var expiryDate = new Date(); expiryDate.setDate(expiryDate.getDate() + 30);
-    y += 14; doc.text('Prepared ' + preparedDate.toLocaleDateString('en-CA') + '   |   Valid until ' + expiryDate.toLocaleDateString('en-CA'), x, y);
-
-    y += 34; doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(40,40,40);
-    doc.text('Prepared for', x, y);
-    doc.setFont('helvetica','normal'); doc.setFontSize(11);
-    y += 16; doc.text(L.fname + ' ' + L.lname, x, y);
-    y += 15; doc.text(L.address, x, y);
-    y += 15; doc.text(L.phone + '  |  ' + L.email, x, y);
-
-    y += 34; doc.setFont('helvetica','bold'); doc.setFontSize(12);
-    doc.text('Scope of work', x, y);
-    doc.setDrawColor(200,200,200); y += 8; doc.line(x, y, 556, y);
-    doc.setFont('helvetica','normal'); doc.setFontSize(11);
-    (L.scopeRows || []).forEach(function(s){
-      y += 20; doc.text('\u2022  ' + s, x, y);
-    });
-    y += 14; doc.line(x, y, 556, y);
-    y += 30; doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(40,40,40);
-    doc.text('Estimated total', x, y); doc.text(L.totalText, 556, y, {align:'right'});
-
-    var pageCenter = doc.internal.pageSize.getWidth() / 2;
-    y += 50; doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(74,90,65);
-    doc.text('Thanks for considering Northbound Improvements for your kitchen!', pageCenter, y, {align:'center'});
-    y += 20; doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(40,40,40);
-    doc.textWithLink('Ready for an exact quote? Book your free 15-minute call here,', pageCenter, y, {align:'center', url:'https://calendar.app.google/hWRJGZt6GHuw47Vy8'});
-    y += 16; doc.text('or reply to info@northboundimprovements.com with any questions.', pageCenter, y, {align:'center'});
-
-    // Disclaimer pinned to the bottom of the page, regardless of how much content is above it
-    var pageHeight = doc.internal.pageSize.getHeight();
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(110,110,110);
-    var note = 'This estimate is preliminary and valid for 30 days from the prepared date above. The final quote may change after an assessment of your project scope and cabinet condition. Prices are in CAD and do not include the cost of materials. Cabinet interiors are not offered as part of this service.';
-    var noteLines = doc.splitTextToSize(note, 500);
-    var noteY = pageHeight - 50 - (noteLines.length - 1) * 11;
-    doc.text(noteLines, x, noteY);
-
-    doc.save('Northbound-Improvements-Estimate.pdf');
+    // Scope + total only passed forward to the results page (no per-item pricing)
+    sessionStorage.setItem('nb_estimate', JSON.stringify(lead));
+    window.location.href = '/results';
   });
 </script>
 </body>

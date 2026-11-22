@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your Estimate — Northbound Improvements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --moss:#4A5A41; --moss-dark:#37442F; --stone:#F2F0E8;
+    --ink:#2A2A24; --line:#E1DDD0; --card:#FFFFFF; --radius:16px;
+    --amber:#CF9B5C;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --stone:#1E2019; --card:#262920; --ink:#EDEAE1; --line:#3A3D32; }
+  }
+  :root[data-theme="dark"]{ --stone:#1E2019; --card:#262920; --ink:#EDEAE1; --line:#3A3D32; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--stone); color:var(--ink); font-family:'Work Sans',sans-serif; line-height:1.55;
+       padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);}
+  h1,h2,h3{font-family:'Fraunces',serif; font-weight:600; margin:0 0 .3em;}
+  .wrap{max-width:640px; margin:0 auto; padding:40px 24px 80px;}
+  a.back{font-size:.9rem; text-decoration:none; color:var(--moss); font-weight:500;}
+
+  /* Document-style card, matching the PDF layout */
+  .doc{border:1px solid var(--line); border-radius:var(--radius); background:var(--card); padding:30px 26px; margin-top:22px;}
+  .doc .brand{color:var(--moss-dark); font-size:1.5rem;}
+  .doc .sub{font-size:.85rem; opacity:.65; margin-top:4px;}
+  .doc .meta{font-size:.82rem; opacity:.6; margin-top:2px;}
+  .doc hr{border:none; border-top:1px solid var(--line); margin:20px 0;}
+  .doc .block-label{font-weight:600; font-family:'Fraunces',serif; color:var(--moss-dark); margin-bottom:6px; font-size:1.02rem;}
+  .doc .prepared-for{font-size:.95rem; margin-bottom:2px;}
+  .doc ul.scope{margin:0 0 4px; padding-left:20px; line-height:1.8; font-size:.97rem;}
+  .total-row{display:flex; justify-content:space-between; align-items:baseline; margin-top:18px; padding-top:16px; border-top:2px solid var(--line);}
+  .total-row .label{font-family:'Fraunces',serif; font-weight:600; font-size:1.2rem; color:var(--ink);}
+  .total-row .amount{font-family:'Fraunces',serif; font-weight:700; font-size:2.1rem; color:var(--moss-dark);}
+  .doc .fine{font-size:.78rem; opacity:.6; margin-top:18px;}
+
+  /* High-contrast booking CTA — pops against the page */
+  .book-cta{margin-top:26px; padding:26px 22px; border-radius:18px; background:linear-gradient(135deg,#37442F,#4A5A41); text-align:center;}
+  .book-cta h2{color:#fff; font-size:1.25rem; margin-bottom:.3em;}
+  .book-cta p{color:#E7E3D6; font-size:.92rem; margin:0 0 18px;}
+  .book-cta a{
+    display:inline-block; padding:16px 30px; border-radius:999px; background:var(--amber); color:#2A2008;
+    text-decoration:none; font-weight:700; font-size:1.05rem; box-shadow:0 8px 20px -6px rgba(0,0,0,.4);
+  }
+  .book-cta a:hover{background:#DBAE74;}
+
+  /* Muted, low-key PDF download — site's own quiet colourway */
+  .pdf-row{text-align:center; margin-top:22px;}
+  .pdf-link{display:inline-flex; align-items:center; gap:8px; color:var(--moss); text-decoration:underline; font-size:.9rem; font-weight:500; background:none; border:none; cursor:pointer; font-family:inherit; padding:6px;}
+  .pdf-link:hover{color:var(--moss-dark);}
+
+  .empty{text-align:center; padding:60px 20px;}
+  .empty p{opacity:.75; margin-bottom:18px;}
+  .empty a{display:inline-block; padding:13px 26px; border-radius:999px; background:var(--moss); color:#fff; text-decoration:none; font-weight:600;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; Back to Northbound Improvements</a>
+
+  <div id="content"></div>
+</div>
+
+<script>
+  var CALENDAR_URL = 'https://calendar.app.google/hWRJGZt6GHuw47Vy8';
+  var raw = sessionStorage.getItem('nb_estimate');
+  var content = document.getElementById('content');
+
+  if(!raw){
+    content.innerHTML =
+      '<div class="empty">' +
+        '<h1>No estimate found</h1>' +
+        '<p>It looks like you landed here without filling out the estimate form, or your session expired.</p>' +
+        '<a href="/estimate">Get your free estimate</a>' +
+      '</div>';
+  } else {
+    var L = JSON.parse(raw);
+    var today = new Date();
+    var expiry = new Date(); expiry.setDate(expiry.getDate() + 30);
+    var fmtDate = function(d){ return d.toLocaleDateString('en-CA'); };
+
+    var scopeHtml = (L.scopeRows || []).map(function(s){ return '<li>' + s + '</li>'; }).join('');
+
+    content.innerHTML =
+      '<div class="doc">' +
+        '<div class="brand">Northbound Improvements</div>' +
+        '<div class="sub">Cabinet painting estimate &nbsp;|&nbsp; info@northboundimprovements.com &nbsp;|&nbsp; northboundimprovements.com</div>' +
+        '<div class="meta">Prepared ' + fmtDate(today) + ' &nbsp;|&nbsp; Valid until ' + fmtDate(expiry) + '</div>' +
+        '<hr>' +
+        '<div class="block-label">Prepared for</div>' +
+        '<div class="prepared-for">' + L.fname + ' ' + L.lname + '</div>' +
+        '<div class="prepared-for">' + L.address + '</div>' +
+        '<div class="prepared-for">' + L.phone + ' &nbsp;|&nbsp; ' + L.email + '</div>' +
+        '<hr>' +
+        '<div class="block-label">Scope of work</div>' +
+        '<ul class="scope">' + scopeHtml + '</ul>' +
+        '<div class="total-row"><span class="label">Estimated total</span><span class="amount">' + L.totalText + '</span></div>' +
+        '<p class="fine">This estimate is preliminary and valid for 30 days from the prepared date above. The final quote may change after an assessment of your project scope and cabinet condition. Prices are in CAD and do not include the cost of materials. Cabinet interiors are not offered as part of this service.</p>' +
+      '</div>' +
+
+      '<div class="book-cta">' +
+        '<h2>Ready for an exact quote?</h2>' +
+        '<p>Book a free 15-minute call and I\'ll confirm your project details and give you a final price.</p>' +
+        '<a href="' + CALENDAR_URL + '" target="_blank" rel="noopener">Book your free 15-minute call</a>' +
+      '</div>' +
+
+      '<div class="pdf-row">' +
+        '<button class="pdf-link" id="pdfBtn">Download my estimate (PDF)</button>' +
+      '</div>';
+
+    document.getElementById('pdfBtn').addEventListener('click', function(){
+      if(!window.jspdf) return;
+      var doc = new window.jspdf.jsPDF({unit:'pt', format:'letter'});
+      var x = 56, y = 64;
+      doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(74,90,65);
+      doc.text('Northbound Improvements', x, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(110,110,110);
+      y += 18; doc.text('Cabinet painting estimate  |  info@northboundimprovements.com  |  northboundimprovements.com', x, y);
+      y += 14; doc.text('Prepared ' + fmtDate(today) + '   |   Valid until ' + fmtDate(expiry), x, y);
+
+      y += 34; doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(40,40,40);
+      doc.text('Prepared for', x, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(11);
+      y += 16; doc.text(L.fname + ' ' + L.lname, x, y);
+      y += 15; doc.text(L.address, x, y);
+      y += 15; doc.text(L.phone + '  |  ' + L.email, x, y);
+
+      y += 34; doc.setFont('helvetica','bold'); doc.setFontSize(12);
+      doc.text('Scope of work', x, y);
+      doc.setDrawColor(200,200,200); y += 8; doc.line(x, y, 556, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(11);
+      (L.scopeRows || []).forEach(function(s){
+        y += 20; doc.text('\u2022  ' + s, x, y);
+      });
+      y += 14; doc.line(x, y, 556, y);
+      y += 30; doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(40,40,40);
+      doc.text('Estimated total', x, y); doc.text(L.totalText, 556, y, {align:'right'});
+
+      var pageCenter = doc.internal.pageSize.getWidth() / 2;
+      y += 50; doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(74,90,65);
+      doc.text('Thanks for considering Northbound Improvements for your kitchen!', pageCenter, y, {align:'center'});
+      y += 20; doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(40,40,40);
+      doc.textWithLink('Ready for an exact quote? Book your free 15-minute call here,', pageCenter, y, {align:'center', url: CALENDAR_URL});
+      y += 16; doc.text('or reply to info@northboundimprovements.com with any questions.', pageCenter, y, {align:'center'});
+
+      var pageHeight = doc.internal.pageSize.getHeight();
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(110,110,110);
+      var note = 'This estimate is preliminary and valid for 30 days from the prepared date above. The final quote may change after an assessment of your project scope and cabinet condition. Prices are in CAD and do not include the cost of materials. Cabinet interiors are not offered as part of this service.';
+      var noteLines = doc.splitTextToSize(note, 500);
+      var noteY = pageHeight - 50 - (noteLines.length - 1) * 11;
+      doc.text(noteLines, x, noteY);
+
+      doc.save('Northbound-Improvements-Estimate.pdf');
+    });
+  }
+</script>
+</body>
+</html>
